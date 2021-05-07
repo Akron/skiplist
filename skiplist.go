@@ -226,6 +226,78 @@ func (t *SkipList) FindGreaterOrEqual(e ListElement) (elem *SkipListElement, ok 
 // If there are multiple entries with the same value, Delete will remove one of them
 // (Which one will change based on the actual skiplist layout)
 // Delete runs in approx. O(log(n))
+func (t *SkipList) DeleteResponse(e ListElement) (*SkipListElement, bool) {
+
+	if t == nil || t.IsEmpty() || e == nil {
+		return nil, false
+	}
+
+	key := e.ExtractKey()
+
+	index := t.findEntryIndex(key, 0)
+
+	var currentNode *SkipListElement
+	nextNode := currentNode
+
+	for {
+
+		if currentNode == nil {
+			nextNode = t.startLevels[index]
+		} else {
+			nextNode = currentNode.next[index]
+		}
+
+		// Found and remove!
+		if nextNode != nil && math.Abs(nextNode.key-key) <= t.eps {
+
+			if currentNode != nil {
+				currentNode.next[index] = nextNode.next[index]
+			}
+
+			if index == 0 {
+				if nextNode.next[index] != nil {
+					nextNode.next[index].prev = currentNode
+				}
+				t.elementCount--
+			}
+
+			// Link from start needs readjustments.
+			if t.startLevels[index] == nextNode {
+				t.startLevels[index] = nextNode.next[index]
+				// This was our currently highest node!
+				if t.startLevels[index] == nil {
+					t.maxLevel = index - 1
+				}
+			}
+
+			// Link from end needs readjustments.
+			if nextNode.next[index] == nil {
+				t.endLevels[index] = currentNode
+			}
+			nextNode.next[index] = nil
+		}
+
+		if nextNode != nil && nextNode.key < key {
+			// Go right
+			currentNode = nextNode
+		} else {
+			// Go down
+			index--
+			if index < 0 {
+				break
+			}
+		}
+	}
+	if nextNode != nil {
+		return nextNode, true
+	}
+	return nil, false
+}
+
+// Delete removes an element equal to e from the skiplist, if there is one.
+// If there are multiple entries with the same value, Delete will remove one of them
+// (Which one will change based on the actual skiplist layout)
+// Delete runs in approx. O(log(n))
 func (t *SkipList) Delete(e ListElement) {
 
 	if t == nil || t.IsEmpty() || e == nil {
@@ -288,7 +360,6 @@ func (t *SkipList) Delete(e ListElement) {
 			}
 		}
 	}
-
 }
 
 // Insert inserts the given ListElement into the skiplist.

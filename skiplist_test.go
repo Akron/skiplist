@@ -154,6 +154,84 @@ func TestDelete(t *testing.T) {
 	}
 }
 
+func TestDeleteResponse(t *testing.T) {
+
+	var list SkipList
+	var e *SkipListElement
+
+	// Delete on empty list
+	_, ok := list.DeleteResponse(Element(0))
+
+	if ok {
+		t.Fail()
+	}
+
+	list = New()
+
+	_, ok = list.DeleteResponse(Element(0))
+	if !list.IsEmpty() {
+		t.Fail()
+	}
+	if ok {
+		t.Fail()
+	}
+
+	// Delete elements at the beginning of the list.
+	for i := 0; i < maxN; i++ {
+		list.Insert(Element(i))
+	}
+	for i := 0; i < maxN; i++ {
+		e, ok = list.DeleteResponse(Element(i))
+		if !ok {
+			t.Fail()
+		}
+		if int(e.value.ExtractKey()) != i {
+			t.Fail()
+		}
+	}
+	if !list.IsEmpty() {
+		t.Fail()
+	}
+
+	list = New()
+	// Delete elements at the end of the list.
+	for i := 0; i < maxN; i++ {
+		list.Insert(Element(i))
+	}
+	for i := 0; i < maxN; i++ {
+		x := maxN - i - 1
+		e, ok = list.DeleteResponse(Element(x))
+		if !ok {
+			t.Fail()
+		}
+		if int(e.value.ExtractKey()) != x {
+			t.Fail()
+		}
+	}
+	if !list.IsEmpty() {
+		t.Fail()
+	}
+
+	list = New()
+	// Delete elements at random positions in the list.
+	rList := rand.Perm(maxN)
+	for _, e := range rList {
+		list.Insert(Element(e))
+	}
+	for _, r := range rList {
+		e, ok = list.DeleteResponse(Element(r))
+		if !ok {
+			t.Fail()
+		}
+		if int(e.value.ExtractKey()) != r {
+			t.Fail()
+		}
+	}
+	if !list.IsEmpty() {
+		t.Fail()
+	}
+}
+
 func TestFindGreaterOrEqual(t *testing.T) {
 	eps := 0.00000001
 	maxNumber := 1000.0

@@ -1,5 +1,7 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/mauricegit/skiplist)](https://goreportcard.com/report/github.com/mauricegit/skiplist)
- [![cover.run](https://cover.run/go/github.com/MauriceGit/skiplist.svg?style=flat&tag=golang-1.10)](https://cover.run/go?tag=golang-1.10&repo=github.com%2FMauriceGit%2Fskiplist) 
+# Experimental Fork
+
+This is a fork of [MauriceGit/skiplist](https://github.com/MauriceGit/skiplist)
+testing some changes. Please refer to the original version.
 
 ## Fast Skiplist Implementation
 
